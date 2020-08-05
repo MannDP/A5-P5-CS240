@@ -75,7 +75,7 @@ void DFA::findMatches() {
 void DFA::printDelta(const string& outputFile) {
     ofstream out{outputFile};
     for( auto const& [key, val] : delta) {
-        cout << key.first << " " << key.second << " " << val << endl;
+        out << key.first << " " << key.second << " " << val << endl;
     }
 }
 
@@ -128,14 +128,14 @@ int DFA::_l(const string &str) {
 }
 
 void DFA::printResults() {
-    printDelta("a5delta.txt:");
-    printMatches("a5matches.txt.");
+    printDelta("a5delta.txt");
+    printMatches("a5matches.txt");
 }
 
 
 int main() {
     const string patternFile = "a5pattern.txt";
-    const string textFile = "a5text.txt.";
+    const string textFile = "a5text.txt";
     DFA dfa{readFile(patternFile), readFile(textFile)};
     dfa.printResults();
 }
@@ -143,7 +143,6 @@ int main() {
 string readFile(const string& sourceFile) {
     string result;
     ifstream istream{sourceFile};
-    assert(istream);
     string tmp;
     while(istream >> tmp) {
         result.append(tmp);
