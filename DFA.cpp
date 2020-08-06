@@ -34,8 +34,9 @@ public:
     void printResults();
 };
 
-DFA::DFA(string pattern, string text): pattern{std::move(pattern)}, text{std::move(text)}, numStates{pattern.size() + 1} {
+DFA::DFA(string pattern, string text): pattern{std::move(pattern)}, text{std::move(text)}, numStates{this->pattern.size() + 1} {
     _computeDelta();
+    findMatches();
 }
 
 void DFA::_computeCharsInPattern() {
@@ -62,11 +63,14 @@ void DFA::findMatches() {
     matches.clear();
     int state = 0;
     const int acceptingState = pattern.size();
-    for (const auto & character : text) {
+    const int textSize = text.size();
+    const int patternSize = pattern.size();
+    for (int i = 0; i < textSize; i++) {
+        char character = text[i];
         if (auto it = delta.find({state, character}); it != delta.end()) {
             state = it->second;
             if (state == acceptingState) {
-                matches.emplace_back(state);
+                matches.emplace_back(i - (patternSize - 1));
             }
         }
     }
@@ -103,7 +107,7 @@ int DFA::_l(const string &str) {
     // check for each non-empty prefix
     for (int i = 1; i < numPrefixes; i++) {
         string prefix = prefixes[i];
-        int prefixSize = prefix.size();
+        const int prefixSize = prefix.size();
         int offsetInStr = str.size() - prefixSize;
 
         if (offsetInStr < 0) {
@@ -120,7 +124,7 @@ int DFA::_l(const string &str) {
 
         if (isSuffix) {
             assert(longestPrefixLength < prefix.size());
-            longestPrefixLength = prefix.size();
+            longestPrefixLength = prefixSize;
         }
     }
 
@@ -134,18 +138,18 @@ void DFA::printResults() {
 
 
 int main() {
-    const string patternFile = "a5pattern.txt";
-    const string textFile = "a5text.txt";
-    DFA dfa{readFile(patternFile), readFile(textFile)};
+    const string pattern = readFile("a5pattern.txt");
+    const string text = readFile("a5text.txt");
+    DFA dfa{pattern, text};
     dfa.printResults();
 }
 
 string readFile(const string& sourceFile) {
     string result;
     ifstream istream{sourceFile};
-    string tmp;
-    while(istream >> tmp) {
-        result.append(tmp);
+    string line;
+    while(getline(istream, line)) {
+        result.append(line);
     }
     return result;
 }
